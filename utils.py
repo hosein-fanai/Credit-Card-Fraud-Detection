@@ -586,7 +586,9 @@ def save_logs(model_name, i, val_f1, best_f1,
 
 
 def repeat_fit_and_pred_and_eval(model, fit_args, x_test, y_test, 
-                                compile_args=None, n_repeat=5):
+                                compile_args=None, n_repeat=5, 
+                                different_train_data=False, 
+                                different_test_data=False):
     import numpy as np
 
 
@@ -598,6 +600,13 @@ def repeat_fit_and_pred_and_eval(model, fit_args, x_test, y_test,
             optimizer_configs = optimizers.serialize(compile_args["optimizer"])
     else:
         from sklearn.base import clone
+
+    if different_train_data:
+        x_train_list = fit_args.get("x", None)
+        x_train_list = fit_args["X"] if x_train_list is None else x_train_list
+
+    if different_test_data:
+        x_test_list = x_test
 
     results_dict = {}
     preds_list = []
@@ -616,7 +625,17 @@ def repeat_fit_and_pred_and_eval(model, fit_args, x_test, y_test,
         else:
             model = clone(model)
 
+        if different_train_data:
+            if fit_args.get("x", None) is None:
+                fit_args["X"] = x_train_list[i]
+            else:
+                fit_args["x"] = x_train_list[i]
+
         model.fit(**fit_args)
+
+        if different_test_data:
+            x_test = x_test_list[i] 
+
 
         if compile_args:
             probs = model.predict(x_test, batch_size=fit_args["batch_size"], verbose=0)
