@@ -588,7 +588,8 @@ def save_logs(model_name, i, val_f1, best_f1,
 def repeat_fit_and_pred_and_eval(model, fit_args, x_test, y_test, 
                                 compile_args=None, n_repeat=5, 
                                 different_train_data=False, 
-                                different_test_data=False):
+                                different_test_data=False,
+                                predict_on_training_mode=False):
     import numpy as np
 
 
@@ -636,13 +637,21 @@ def repeat_fit_and_pred_and_eval(model, fit_args, x_test, y_test,
         if different_test_data:
             x_test = x_test_list[i] 
 
-
         if compile_args:
-            probs = model.predict(x_test, batch_size=fit_args["batch_size"], verbose=0)
+            if predict_on_training_mode:
+                probs = model(x_test, training=True).numpy()
+            else:
+                probs = model.predict(x_test, batch_size=fit_args["batch_size"], verbose=0)
+    
             preds = probs.round()
         else:
             preds = model.predict(x_test)
-            probs = model.predict_proba(x_test)
+
+            try:
+                probs = model.predict_proba(x_test)
+            except:
+                print("The model deosn't support predict_proba. The probs_list will be empty.")
+                probs = None
 
         preds_list.append(preds)
         probs_list.append(probs)
