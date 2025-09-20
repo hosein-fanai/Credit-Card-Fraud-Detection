@@ -389,7 +389,7 @@ def tic():
 def toc(title=''):
     global start
     interval = time.time() - start
-    print(f'\n{title+" : " if title else ""}{int(interval // 3600)} Hour(s) & {int((interval // 60) % 60)} Minute(s) & {int(interval % 60)} Second(s) & {(interval - int(interval)) * 1000} Milliseconds')
+    print(f'\n{title+": " if title else ""}{int(interval // 3600)} Hour(s) & {int((interval // 60) % 60)} Minute(s) & {int(interval % 60)} Second(s) & {(interval - int(interval)) * 1000} Milliseconds')
 
 
 def plot_history(history, range_=(0, None), max_ind=float("inf")):
