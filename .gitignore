@@ -1,19 +1,19 @@
 __pycache__
 .ipynb_checkpoints
 
-*/.legacy/*
+.legacy
 
-datasets
+notebooks/test.ipynb
+
+datasets/*
+!datasets/German
+
+models/callbacks
+
 extracted data
-
 final png models
-models
-results
 samples
 
+results
+
 temp
-
-*.png
-
-Untitled*.ipynb
-test.ipynb

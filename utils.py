@@ -17,7 +17,8 @@ i = 1
 reset_logs = False
 
 
-def create_compile_args(optimizer="adam", loss="binary_crossentropy", metrics_idx=list(range(8))):
+def create_compile_args(optimizer="adam", loss="binary_crossentropy", 
+                    metrics_idx=list(range(8))):
     from tensorflow.keras import metrics
 
     import tensorflow_addons as tfa
@@ -43,8 +44,9 @@ def create_compile_args(optimizer="adam", loss="binary_crossentropy", metrics_id
     return compile_args
 
 
-def create_callbacks_list(model_name="no name", monitor="val_f1_score", mode="max", 
-                        patience=5, min_delta=1e-3, reducelr_factor=0.6, verbose=1, idx=(0,)):
+def create_callbacks_list(model_name="no_name", monitor="val_f1_score", 
+                        mode="max", patience=5, min_delta=1e-3, 
+                        reducelr_factor=0.6, verbose=1, idx=(0,)):
     from tensorflow.keras import callbacks
 
 
@@ -137,7 +139,7 @@ def load_data_ccfd2023(normalization="z-score"):
     import pandas as pd
 
 
-    global dataset_min, dataset_max, dataset_train_mean, dataset_train_std
+    global dataset_train_min, dataset_train_max, dataset_train_mean, dataset_train_std
 
 
     dataset_path = os.path.join(datasets_path, "creditcard_2023.csv")
@@ -211,9 +213,10 @@ def load_data_gcd(normalization="min-max"):
 
 
 def get_dataset_stats():
-    if dataset_min is not None:
-        return dataset_min ,dataset_max ,dataset_train_mean ,dataset_train_std
-    
+    if dataset_train_min is not None:
+        return (dataset_train_min, dataset_train_max, 
+            dataset_train_mean, dataset_train_std)
+
     return None
 
 
@@ -379,16 +382,18 @@ def k_fold_prediction(model, train_data, compile_args, callbacks=None,
     return np.concatenate(preds)
 
 
-start=None
+_start = None
 def tic():
-    global start
-    start = time.time()
-    return
+    global _start
+
+    _start = time.time()
 
 
 def toc(title=''):
-    global start
-    interval = time.time() - start
+    global _start
+
+    interval = time.time() - _start
+
     print(f'\n{title+": " if title else ""}{int(interval // 3600)} Hour(s) & {int((interval // 60) % 60)} Minute(s) & {int(interval % 60)} Second(s) & {(interval - int(interval)) * 1000} Milliseconds')
 
 
@@ -408,7 +413,7 @@ def plot_history(history, range_=(0, None), max_ind=float("inf")):
         plt.figure(itr)
         
         epochs = range(1, len(history.get(metric))+1)[range_]
-        plt.plot(epochs ,history.get(metric)[range_], label="Training")
+        plt.plot(epochs, history.get(metric)[range_], label="Training")
         if has_val:
             plt.plot(epochs, history.get("val_"+metric)[range_], label="Validation", marker='v')
     
